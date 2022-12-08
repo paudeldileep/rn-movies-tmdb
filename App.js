@@ -7,8 +7,9 @@ import Account from "./screens/Account/Account";
 import Search from "./screens/Home/Search";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { COLORS } from "./constants/theme";
-import TabIcon from "./components/Tabs/TabIcon";
+import { TabIcon } from "./components";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
+import MovieDetails from "./screens/Home/MovieDetails";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -49,6 +50,7 @@ export default function App() {
             <Stack.Navigator screenOptions={{ headerShown: false }}>
               <Stack.Screen name="Home" component={Home} />
               <Stack.Screen name="Search" component={Search} />
+              <Stack.Screen name="MovieDetails" component={MovieDetails} />
             </Stack.Navigator>
           )}
         </Tab.Screen>

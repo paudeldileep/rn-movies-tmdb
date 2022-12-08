@@ -26,7 +26,11 @@ const Header = ({
           <IonIcons name="arrow-back" size={25} color={COLORS.white} />
         </TouchableOpacity>
       )}
-      {title && <Text style={styles.title}>{title}</Text>}
+      {title && (
+        <Text numberOfLines={1} style={styles.title}>
+          {title}
+        </Text>
+      )}
       {secondaryButton && (
         <View style={styles.secondaryButtonView}>
           <IonIcons name={secondaryButtonIcon} size={25} color={COLORS.white} />
@@ -60,6 +64,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     color: COLORS.white,
+    width: "65%",
   },
   secondaryButtonView: {
     alignSelf: "flex-end",

@@ -3,10 +3,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { COLORS } from "../../constants/theme";
 import { View } from "react-native";
-import {
-  heightPercentageToDP as hp,
-  widthPercentageToDP as wp,
-} from "react-native-responsive-screen";
 
 const TabIcon = ({ focused, icon }) => {
   return (
