@@ -28,6 +28,8 @@ const API_URL_QUERY = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_
 //const API_URL_POPULAR = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc`;
 //const API_URL_TOP_RATED = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc`;
 //let API_URL_QUERY = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=`;
+//get casts
+const API_URL_CASTS = `https://api.themoviedb.org/3/movie/`;
 
 const getImagePath = (path) =>
   `https://image.tmdb.org/t/p/w440_and_h660_face${path}`;
@@ -46,6 +48,7 @@ export const getMovies = async (query, page) => {
     const { results, total_pages } = await fetch(API_URL).then((movies) =>
       movies.json()
     );
+    //fetch movie casts
 
     //const { results } = await fetch(API_URL).then((movies) => movies.json());
 
@@ -71,22 +74,33 @@ export const getMovie = async (id) => {
       `https://api.themoviedb.org/3/movie/${id}?api_key=${TMDB_API_KEY}`
     ).then((movie) => movie.json());
 
+    const casts = await fetch(
+      `https://api.themoviedb.org/3/movie/${id}/credits?api_key=${TMDB_API_KEY}`
+    ).then((casts) => casts.json());
+
+    const cast = casts.cast.slice(0, 5).map((cast) => {
+      return {
+        id: cast.id,
+        name: cast.name,
+        profileImage: getImagePath(cast.profile_path),
+        character: cast.character,
+      };
+    });
+
     return {
       id: movie.id,
       title: movie.title,
       poster: getImagePath(movie.poster_path),
       genres: movie.genres.map((genre) => genre.name),
-      releaseDate: movie.release_date,
+      releaseYear: movie.release_date.split("-")[0],
       rating: movie.vote_average,
       overview: movie.overview,
-      casts: movie.credits.cast.map((cast) => ({
-        id: cast.id,
-        name: cast.name,
-        character: cast.character,
-        profile: getImagePath(cast.profile_path),
-      })),
+      runtime: movie.runtime,
+      cast: cast,
+      backdrop: getImagePath(movie.backdrop_path),
     };
   } catch (e) {
+    console.log(e);
     return {};
   }
 };

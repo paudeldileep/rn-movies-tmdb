@@ -11,6 +11,9 @@ import {
   ActivityIndicator,
   Platform,
   ToastAndroid,
+  VirtualizedList,
+  Keyboard,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Header } from "../../components";
@@ -35,17 +38,23 @@ const Search = (props) => {
 
   //search movies
   const searchMovies = async (query) => {
+    //hide keyboard
+    Keyboard.dismiss();
+    //clear previous search result
+    setSearchResult([]);
+
     try {
       const response = await getMovies(query, page);
-      setSearchResult(response.movies);
+      //setSearchResult(response.movies);
+      setSearchResult((prev) => [...response.movies, ...prev]);
       setTotalPages(response.total_pages);
-      setDataLoaded(true);
       setError("");
       console.log(response);
     } catch (error) {
       console.log(error);
-      setDataLoaded(true);
       setError("Something went wrong");
+    } finally {
+      setDataLoaded(true);
     }
   };
   useEffect(() => {
@@ -70,6 +79,12 @@ const Search = (props) => {
       setTimeout(() => {
         searchMovies(searchText);
       }, 1000);
+    } else {
+      if (Platform.OS === "android") {
+        ToastAndroid.show("No more movies", ToastAndroid.SHORT);
+      } else {
+        Alert.alert("No more movies");
+      }
     }
   };
 
@@ -83,7 +98,7 @@ const Search = (props) => {
   return (
     <SafeAreaView style={styles.container}>
       {/* custom header */}
-      <Header title="Search" navigation={navigation} showBackButton />
+      <Header title="Search Movies" navigation={navigation} showBackButton />
       {/* search text input area */}
       <View style={styles.searchAreaView}>
         <View style={styles.searchBox}>
@@ -135,13 +150,18 @@ const Search = (props) => {
             {searchResult.length > 0 ? (
               <>
                 <Text style={styles.title}>Search Result</Text>
-                <FlatList
+                <VirtualizedList
                   data={searchResult}
                   style={styles.list}
                   showsVerticalScrollIndicator={false}
-                  pagingEnabled={true}
                   keyExtractor={(item) => item.id.toString()}
                   contentContainerStyle={{ paddingBottom: hp("8%") }}
+                  initialNumToRender={10}
+                  maxToRenderPerBatch={10}
+                  windowSize={5}
+                  getItem={(data, index) => data[index]}
+                  getItemCount={(data) => data.length}
+                  onEndReached={handleLoadMore}
                   renderItem={({ item }) => (
                     <TouchableOpacity
                       style={styles.listitem}
@@ -283,6 +303,7 @@ const styles = StyleSheet.create({
   },
   list: {
     width: "100%",
+    paddingBottom: hp("8%"),
   },
   listitem: {
     height: hp("20%"),

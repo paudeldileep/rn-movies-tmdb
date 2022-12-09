@@ -11,6 +11,7 @@ const Header = ({
   secondaryButton,
   secondaryButtonIcon,
   handleSecondaryButtonPress,
+  isFavourite,
 }) => {
   // handle back button press
   const handleBackButtonPress = () => {
@@ -32,9 +33,16 @@ const Header = ({
         </Text>
       )}
       {secondaryButton && (
-        <View style={styles.secondaryButtonView}>
-          <IonIcons name={secondaryButtonIcon} size={25} color={COLORS.white} />
-        </View>
+        <TouchableOpacity
+          style={styles.secondaryButtonView}
+          onPress={handleSecondaryButtonPress}
+        >
+          <IonIcons
+            name={secondaryButtonIcon}
+            size={25}
+            color={isFavourite ? COLORS.primary : COLORS.white}
+          />
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -43,8 +51,10 @@ const Header = ({
 export default Header;
 const styles = StyleSheet.create({
   container: {
+    zIndex: 1,
     height: hp("8%"),
-    backgroundColor: COLORS.secondary,
+    //backgroundColor: COLORS.secondary,
+    backgroundColor: "rgba(52, 52, 52, 0.4)",
     alignItems: "center",
     display: "flex",
     flexDirection: "row",

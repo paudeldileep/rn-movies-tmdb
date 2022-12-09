@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   ToastAndroid,
   Platform,
+  VirtualizedList,
 } from "react-native";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -18,23 +19,29 @@ import { COLORS } from "../../constants/theme";
 import IonIcons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { getMovies } from "../../services/api";
+import { getFavourites } from "../../services/localStorage";
 
 const Home = (props) => {
   const { navigation } = props;
 
   const [popularMovies, setPopularMovies] = useState([]);
   const [searchText, setSearchText] = useState("");
-  const [searchResult, setSearchResult] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [error, setError] = useState(null);
+  const [favouriteMovies, setFavouriteMovies] = useState([]);
+  const [favouritesLoading, setFavouritesLoading] = useState(true);
 
   //get popular movies
   const getPopularMovies = async () => {
+    //clear previous data
+
+    setPopularMovies([]);
+
     try {
       const response = await getMovies("", page);
-      setPopularMovies(response.movies);
+      setPopularMovies((prev) => [...prev, ...response.movies]);
       setTotalPages(response.total_pages);
       setDataLoaded(true);
       setError(null);
@@ -43,6 +50,30 @@ const Home = (props) => {
       setError("Something went wrong");
     }
   };
+
+  // get favorite movies from local storage
+  const getFavoriteMovies = async () => {
+    try {
+      const favorites = await getFavourites();
+      setFavouriteMovies(favorites);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setFavouritesLoading(false);
+    }
+  };
+
+  //fetch favourites when screen is focused
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      setTimeout(() => {
+        getFavoriteMovies();
+      }, 1000);
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   useEffect(() => {
     setTimeout(() => {
       getPopularMovies();
@@ -52,11 +83,11 @@ const Home = (props) => {
     return () => {
       setPopularMovies([]);
       setSearchText("");
-      setSearchResult([]);
       setPage(1);
       setTotalPages(1);
       setDataLoaded(false);
       setError(null);
+      setFavouritesLoading(true);
     };
   }, []);
 
@@ -75,11 +106,29 @@ const Home = (props) => {
     navigation.navigate("Search", { searchText });
   };
 
+  //navigate to movie details page
   const handleItemPress = (itemId, itemTitle) => {
     navigation.navigate("MovieDetails", {
       movieId: itemId,
       movieTitle: itemTitle,
     });
+  };
+
+  // load more movies
+  const handleLoadMore = () => {
+    if (page < totalPages) {
+      setPage(page + 1);
+      setDataLoaded(false);
+      setTimeout(() => {
+        getPopularMovies();
+      }, 1000);
+    } else {
+      if (Platform.OS === "android") {
+        ToastAndroid.show("No more movies", ToastAndroid.SHORT);
+      } else {
+        Alert.alert("No more movies");
+      }
+    }
   };
 
   return (
@@ -104,8 +153,14 @@ const Home = (props) => {
         {error && <Text style={styles.errorText}>{error}</Text>}
         {dataLoaded && !error ? (
           <View style={styles.popularMoviesList}>
-            <FlatList
+            <VirtualizedList
               data={popularMovies}
+              initialNumToRender={10}
+              getItem={(data, index) => data[index]}
+              getItemCount={(data) => data.length}
+              maxToRenderPerBatch={10}
+              windowSize={5}
+              onEndReached={handleLoadMore}
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.popularMoviesItem}
@@ -175,6 +230,89 @@ const Home = (props) => {
           />
         )}
       </View>
+      {/* favourite movies */}
+      <View style={styles.favouriteMoviesArea}>
+        <Text style={styles.favouriteMoviesTitle}>Favourite Movies</Text>
+        {!favouritesLoading ? (
+          <>
+            {favouriteMovies.length > 0 ? (
+              <View style={styles.favouriteMoviesList}>
+                <FlatList
+                  data={favouriteMovies}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.favouriteMoviesItem}
+                      onPress={() => {
+                        handleItemPress(item.id, item.title);
+                      }}
+                    >
+                      {/* image */}
+                      <View style={styles.favouriteMoviesItemImage}>
+                        <Image
+                          source={{ uri: item.poster }}
+                          style={styles.image}
+                        />
+                      </View>
+                      {/* description area */}
+                      <View
+                        style={{ paddingHorizontal: hp("1%"), height: "30%" }}
+                      >
+                        <View
+                          style={{
+                            display: "flex",
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Text numberOfLines={1} style={styles.movieTitle}>
+                            {item.title}
+                          </Text>
+                          <View
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <IonIcons
+                              name="star"
+                              size={hp("2.5%")}
+                              color={COLORS.primary}
+                            />
+                            <Text
+                              style={{ color: COLORS.white, marginLeft: 2 }}
+                            >
+                              {item.rating}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                  keyExtractor={(item) => item.id.toString()}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={{ flex: 1 }}
+                />
+              </View>
+            ) : (
+              <View style={styles.noFavouriteMovies}>
+                <Text style={styles.noFavouriteMoviesText}>
+                  You have no favourite movies
+                </Text>
+              </View>
+            )}
+          </>
+        ) : (
+          <ActivityIndicator
+            size="large"
+            color={COLORS.primary}
+            style={{ marginTop: hp("5%") }}
+          />
+        )}
+      </View>
     </SafeAreaView>
   );
 };
@@ -233,7 +371,7 @@ const styles = StyleSheet.create({
     fontSize: hp("2.2%"),
   },
   popularMoviesArea: {
-    marginTop: hp("5%"),
+    marginTop: hp("3%"),
     height: hp("50%"),
     width: "100%",
     display: "flex",
@@ -312,6 +450,66 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     textAlign: "center",
     marginTop: hp("5%"),
+  },
+  favouriteMoviesArea: {
+    marginTop: hp("0.5%"),
+    height: hp("20%"),
+    width: "100%",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    padding: hp("1%"),
+  },
+  favouriteMoviesTitle: {
+    fontSize: hp("2.5%"),
+    color: COLORS.white,
+    fontWeight: "bold",
+    alignSelf: "flex-start",
+  },
+  favouriteMoviesList: {
+    marginTop: hp("1%"),
+    height: "100%",
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  favouriteMoviesItem: {
+    height: "100%",
+    width: hp("30%"),
+    color: COLORS.white,
+    display: "flex",
+    flexDirection: "column",
+    fontSize: hp("2.2%"),
+    marginRight: hp("1.2%"),
+    borderRadius: hp("1%"),
+    marginTop: hp("0.8%"),
+    paddingBottom: hp("1%"),
+  },
+  favouriteMoviesItemImage: {
+    height: "70%",
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+    borderRadius: hp("1.5%"),
+  },
+  noFavouriteMovies: {
+    height: "100%",
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noFavouriteMoviesText: {
+    fontSize: hp("2.5%"),
+    color: COLORS.white,
+    textAlign: "center",
   },
 });
 

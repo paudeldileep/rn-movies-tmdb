@@ -27,7 +27,7 @@ export default function App() {
             elevation: 0,
             backgroundColor: COLORS.secondary,
             borderTopColor: "transparent",
-            height: hp("10%"),
+            height: hp("8%"),
           },
           tabBarShowLabel: false,
           tabBarActiveTintColor: COLORS.primary,
