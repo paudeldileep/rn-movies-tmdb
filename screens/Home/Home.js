@@ -380,9 +380,6 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     paddingHorizontal: hp("1%"),
   },
-  buttonText: {
-    color: COLORS.white,
-  },
   searchAreaView: {
     marginTop: hp("5%"),
     height: hp("6%"),

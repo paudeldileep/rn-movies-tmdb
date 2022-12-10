@@ -208,7 +208,7 @@ const Search = (props) => {
                           ))}
                         </View>
                         <Text style={styles.releaseDate}>
-                          Released: {item.releaseDate}
+                          Released: {item.releaseDate.split("-")[0]}
                         </Text>
                       </View>
                     </TouchableOpacity>

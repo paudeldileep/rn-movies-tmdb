@@ -195,11 +195,6 @@ const styles = StyleSheet.create({
     fontSize: hp("1.8%"),
     marginRight: hp("1%"),
   },
-  releaseDate: {
-    color: "lightgrey",
-    fontSize: hp("1.8%"),
-    marginTop: hp("1%"),
-  },
   movieTitle: {
     color: COLORS.white,
     fontSize: hp("2.3%"),
