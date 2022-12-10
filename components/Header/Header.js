@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
   container: {
     zIndex: 1,
     height: hp("8%"),
-    //backgroundColor: COLORS.secondary,
     backgroundColor: "rgba(52, 52, 52, 0.4)",
     alignItems: "center",
     display: "flex",
@@ -75,6 +74,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: COLORS.white,
     width: "65%",
+    alignSelf: "center",
   },
   secondaryButtonView: {
     alignSelf: "flex-end",

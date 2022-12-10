@@ -20,6 +20,8 @@ import IonIcons from "@expo/vector-icons/Ionicons";
 import { useEffect, useState } from "react";
 import { getMovies } from "../../services/api";
 import { getFavourites } from "../../services/localStorage";
+import OnboardingModal from "../../components/Onboarding/OnboardingModal";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Home = (props) => {
   const { navigation } = props;
@@ -77,6 +79,7 @@ const Home = (props) => {
   useEffect(() => {
     setTimeout(() => {
       getPopularMovies();
+      getFavoriteMovies();
     }, 1000);
 
     // clean up function
@@ -130,6 +133,31 @@ const Home = (props) => {
       }
     }
   };
+
+  //show onboarding modal
+  const [isFirstTime, setIsFirstTime] = useState(true);
+
+  //check if it is the first time user is opening the app
+  useEffect(() => {
+    const checkFirstTime = async () => {
+      try {
+        const isFirstTime = await AsyncStorage.getItem("isFirstTime");
+        if (isFirstTime === null) {
+          setIsFirstTime(true);
+          await AsyncStorage.setItem("isFirstTime", "false");
+        } else {
+          setIsFirstTime(false);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkFirstTime();
+  }, []);
+
+  if (isFirstTime) {
+    return <OnboardingModal onClose={() => setIsFirstTime(false)} />;
+  }
 
   return (
     <SafeAreaView style={styles.container}>

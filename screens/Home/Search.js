@@ -6,7 +6,6 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
   Image,
   ActivityIndicator,
   Platform,

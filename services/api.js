@@ -23,13 +23,7 @@ const genres = {
 
 //url with page number
 const API_URL_POPULAR = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc&page=`;
-const API_URL_TOP_RATED = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc&page=`;
 const API_URL_QUERY = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=`;
-//const API_URL_POPULAR = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc`;
-//const API_URL_TOP_RATED = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=vote_average.desc`;
-//let API_URL_QUERY = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=`;
-//get casts
-const API_URL_CASTS = `https://api.themoviedb.org/3/movie/`;
 
 const getImagePath = (path) =>
   `https://image.tmdb.org/t/p/w440_and_h660_face${path}`;
@@ -48,9 +42,6 @@ export const getMovies = async (query, page) => {
     const { results, total_pages } = await fetch(API_URL).then((movies) =>
       movies.json()
     );
-    //fetch movie casts
-
-    //const { results } = await fetch(API_URL).then((movies) => movies.json());
 
     const movies = results.slice(0, 20).map((movie) => {
       return {
