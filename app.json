@@ -24,10 +24,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/film-reel-playing.png",
         "backgroundColor": "#FFFFFF"
-      }
+      },
+      "package": "com.dkt.rntmdb"
     },
     "web": {
       "favicon": "./assets/film-reel-playing.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "81a87fa2-0d7c-48c6-9aee-73fb0ca8d78b"
+      }
     }
   }
 }

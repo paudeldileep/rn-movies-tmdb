@@ -48,7 +48,7 @@ const Search = (props) => {
       setSearchResult((prev) => [...response.movies, ...prev]);
       setTotalPages(response.total_pages);
       setError("");
-      console.log(response);
+      // console.log(response);
     } catch (error) {
       console.log(error);
       setError("Something went wrong");

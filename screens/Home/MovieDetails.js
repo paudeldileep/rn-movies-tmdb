@@ -110,62 +110,77 @@ const MovieDetails = ({ route, navigation }) => {
       />
       {dataLoaded && !error && details ? (
         <>
-          {/* poster image area */}
-          <View style={styles.posterImage}>
-            {/* linear foreground color */}
-            {/* poster image */}
-            <Image
-              source={{
-                uri: details.backdrop ? details.backdrop : details.poster,
-              }}
-              style={styles.Image}
-              defaultSource={require("../../assets/movie-frame.png")}
-            />
-            {/* movie details area */}
-            <View style={styles.movieDetails}>
-              <Text numberOfLines={1} style={styles.movieTitle}>
-                {details.title}
-              </Text>
-              <View style={styles.movieDetailsRow}>
-                <Text style={styles.movieDetailsText}>
-                  {details.releaseYear}
-                </Text>
-                {/* genre */}
-                <View style={styles.movieGenre}>
-                  {details.genres.slice(0, 2).map((genre, i) => (
-                    <Text key={i} style={styles.movieGenreItem}>
-                      {genre}
+          {Object.keys(details).length !== 0 ? (
+            <>
+              {/* poster image area */}
+              <View style={styles.posterImage}>
+                {/* linear foreground color */}
+                {/* poster image */}
+                <Image
+                  source={{
+                    uri: details.backdrop ? details.backdrop : details.poster,
+                  }}
+                  style={styles.Image}
+                  defaultSource={require("../../assets/movie-frame.png")}
+                />
+                {/* movie details area */}
+                <View style={styles.movieDetails}>
+                  <Text numberOfLines={1} style={styles.movieTitle}>
+                    {details.title}
+                  </Text>
+                  <View style={styles.movieDetailsRow}>
+                    <Text style={styles.movieDetailsText}>
+                      {details.releaseYear}
                     </Text>
+                    {/* genre */}
+                    <View style={styles.movieGenre}>
+                      {details.genres.slice(0, 2).map((genre, i) => (
+                        <Text key={i} style={styles.movieGenreItem}>
+                          {genre}
+                        </Text>
+                      ))}
+                    </View>
+                    <Text style={styles.movieDetailsText}>
+                      {details.runtime}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+              {/* movie description */}
+              <View style={styles.movieDescription}>
+                <Text style={styles.movieDescriptionTitle}>Plot Summary</Text>
+                <Text numberOfLines={5} style={styles.movieDescriptionText}>
+                  {details.overview}
+                </Text>
+              </View>
+              {/* cast */}
+              <View style={styles.movieCast}>
+                <Text style={styles.movieCastTitle}>Cast</Text>
+                <View style={styles.movieCastList}>
+                  {details.cast.slice(0, 3).map((cast, i) => (
+                    <View key={i} style={styles.movieCastItem}>
+                      <Image
+                        source={{
+                          uri: cast.profileImage,
+                        }}
+                        style={styles.movieCastItemImage}
+                      />
+                      <Text style={styles.movieCastItemName}>{cast.name}</Text>
+                    </View>
                   ))}
                 </View>
-                <Text style={styles.movieDetailsText}>{details.runtime}</Text>
               </View>
-            </View>
-          </View>
-          {/* movie description */}
-          <View style={styles.movieDescription}>
-            <Text style={styles.movieDescriptionTitle}>Plot Summary</Text>
-            <Text numberOfLines={5} style={styles.movieDescriptionText}>
-              {details.overview}
+            </>
+          ) : (
+            <Text
+              style={[
+                styles.movieTitle,
+                { textAlign: "center", marginTop: hp("5%") },
+              ]}
+            >
+              Movie data not found
             </Text>
-          </View>
-          {/* cast */}
-          <View style={styles.movieCast}>
-            <Text style={styles.movieCastTitle}>Cast</Text>
-            <View style={styles.movieCastList}>
-              {details.cast.slice(0, 3).map((cast, i) => (
-                <View key={i} style={styles.movieCastItem}>
-                  <Image
-                    source={{
-                      uri: cast.profileImage,
-                    }}
-                    style={styles.movieCastItemImage}
-                  />
-                  <Text style={styles.movieCastItemName}>{cast.name}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
+          )}
         </>
       ) : (
         <ActivityIndicator size="large" color={COLORS.primary} />

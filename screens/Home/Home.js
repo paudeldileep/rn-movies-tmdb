@@ -12,6 +12,8 @@ import {
   ToastAndroid,
   Platform,
   VirtualizedList,
+  BackHandler,
+  Alert,
 } from "react-native";
 import { heightPercentageToDP as hp } from "react-native-responsive-screen";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -155,6 +157,29 @@ const Home = (props) => {
     checkFirstTime();
   }, []);
 
+  //exit app if back button is pressed
+  useEffect(() => {
+    const backAction = () => {
+      //ask user if they want to exit
+      Alert.alert("Hold on!", "Are you sure you want to exit?", [
+        {
+          text: "Cancel",
+          onPress: () => null,
+          style: "cancel",
+        },
+        { text: "YES", onPress: () => BackHandler.exitApp() },
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, []);
+
   if (isFirstTime) {
     return <OnboardingModal onClose={() => setIsFirstTime(false)} />;
   }
@@ -179,6 +204,9 @@ const Home = (props) => {
       <View style={styles.popularMoviesArea}>
         <Text style={styles.popularMoviesTitle}>Popular Movies</Text>
         {error && <Text style={styles.errorText}>{error}</Text>}
+        {popularMovies.length === 0 && (
+          <Text style={styles.errorText}>No Movies Found</Text>
+        )}
         {dataLoaded && !error ? (
           <View style={styles.popularMoviesList}>
             <VirtualizedList

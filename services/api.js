@@ -35,7 +35,6 @@ export const getMovies = async (query, page) => {
     if (query !== "") {
       API_URL = API_URL_QUERY + query + "&page=" + page;
       //API_URL = API_URL_QUERY + query;
-      console.log(API_URL);
     }
 
     //get results with total pages
